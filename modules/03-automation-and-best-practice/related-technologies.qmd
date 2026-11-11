@@ -1,0 +1,103 @@
+---
+title: "Related Technologies"
+description: "Podman Compose, Apptainer and Kubernetes, and when to use them"
+order: 5
+---
+
+## Overview
+
+This course has focused on single containers running on a single host, like your
+personal laptop or a remote workstation virtual machine. 
+We point out three technologies you are likely to encounter that go beyond this 
+in supporting multiple containers that are interconnected or run on multiple
+hosts.
+
+
+## Podman Compose: multiple containers
+
+Many applications need several distinct services working together. A modern web
+application, for example, may have a backend, a frontend (user interface) and a
+database. Both Podman and Docker provide *Compose* functionality, which lets you define
+a group of containers that may share storage and networking, in a
+single YAML file.
+
+Everything we have learnt about individual containers still applies: images are
+built and published in exactly the same way. It is only their running as a
+unified instance, i.e., their *composition*, that is new. A minimal
+example compose YAML file could look like:
+
+```yaml
+services:
+  app:
+    image: ghcr.io/username/python-demo:0.0.1
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+  db:
+    image: docker.io/postgres:18
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+
+volumes:
+  dbdata:
+```
+This defines a postgres database with persistent storage that our `python-demo`
+app depends on, e.g., to store the results of each run.
+
+::: {.callout-warning collapse=true}
+## Compose and Podman
+
+Unlike the running of individual containers, where Podman and Docker are largely interchangeable,
+Podman Compose provides only a subset of features from Docker Compose. Podman can, however, interface directly
+with Docker Compose, if needed
+(see *Settings* > *Resources* > *Compose*).
+:::
+
+## Apptainer: containers on HPC
+
+Docker and Podman are standard across much of science and industry, but
+multi-user systems such as HPC clusters often use Apptainer (formerly
+'Singularity') instead. It has many of the same features, only a slightly different syntax,
+and must be run from the command line. It is also able to work with the MPI
+(Message Passing Interface) installation on a cluster to run processes across
+several machines at once. The
+[Apptainer User Guide](https://apptainer.org/docs/user/main/) is a complete
+reference and includes walkthroughs for getting started. 
+
+::: {.callout-tip}
+## Compatibility
+
+Apptainer can run OCI images built by Podman (it
+converts them to its own SIF format). The reverse is not
+true: an Apptainer SIF file cannot be used directly by Podman or Docker. This is another
+reason to publish your images in the OCI format on a public registry, as we have
+done throughout this course.
+:::
+
+## Kubernetes: orchestration
+
+In the next course of this series you can learn about Kubernetes, a container
+*orchestration* platform. It manages applications typically comprising 
+multiple containers running across several machines,
+and is designed to be scalable, resilient and automated. It is increasingly used
+by research software engineers and infrastructure engineers in digital research
+infrastructure.
+
+Kubernetes is *declarative*. Rather than issuing explicit commands as with Podman 
+(e.g., build the image, start the container), you define a target state for
+your application and Kubernetes determines how to achieve and then maintain that state.
+
+One connection worth making now is that the smallest deployable unit in
+Kubernetes is not a container but a *Pod*, which is a wrapper around one or more
+containers that share storage and networking. And now for the big reveal: Podman
+is designed for Pods! (Read: *Pod* *man*anger.)
+Podman Desktop supports creating Pods for
+your containers, and also generating Kubernetes YAML definition files (called
+*manifests*)  to deploy to a Kubernetes cluster. You can explore this
+yourself before the next course.
+
+If the next course catches your interest, you may like to check out the
+Cloud-Native SIG at [cloudnative-sig.ac.uk](https://cloudnative-sig.ac.uk/). We
+are a community for modern cloud-native technologies in digital research
+infrastructure, and deliver regular training workshops on Kubernetes.
