@@ -1,0 +1,41 @@
+---
+title: "Module Overview"
+description: "What problems containers address and everything you need to know to start using them"
+listing:
+  id: module-pages
+  contents: "*.qmd"
+  sort: "order"
+  type: table
+  fields: [title, description]
+---
+
+## Overview
+
+In research one often encounters the problem that software works on one machine
+but not another, or was working last year but not since a recent system update.
+Containers are an effective way not only to get software *working* consistently
+on different computers, but also to produce the same outputs across them.
+
+Whilst running a container is simple, managing its entire lifecycle, and further
+creating and sharing your own container images, is easier with an understanding
+of the technology. In this module we introduce the fundamental concepts that
+underpin the rest of the course, before getting up and running with
+containers published online, using Podman Desktop.
+
+## Learning objectives
+
+By the end of this module, you will:
+
+- Appreciate the challenges of reproducible computing in research, and how
+  containers offer a solution
+- Understand core container concepts: images, containers, layers, runtimes and
+  registries
+- Run a container image from an online registry on your computer
+- Know how to connect storage and system devices (e.g., GPUs) to containers
+- Be confident managing the lifecycle of a container, and providing your own
+  start-up commands
+
+## In this module
+
+::: {#module-pages}
+:::
