@@ -1,0 +1,92 @@
+project:
+  type: book
+  output-dir: docs
+
+lang: en-GB
+
+book:
+  title: "Containers for Reproducible Research"
+
+  author:
+    - name: "Piper Fowler-Wright"
+      orcid: "0000-0003-1060-445X"
+      roles: ["Conceptualization", "Software", "Writing - Original Draft"]
+    - name: "Alexia Cardona"
+      orcid: "0000-0002-7877-5565"
+      roles: ["Conceptualization", "Supervision"]
+
+  license: CC BY-SA 4.0
+
+  sidebar:
+    logo: images/uoc-logo.png
+    title: "Containers for Reproducible Research"
+    border: true
+
+  page-footer:
+    center: |
+      ![RRCam logo](/images/rrcam-logo.webp){width=24px}
+      Enabling Reproducible Research. Join our training courses
+      [here](https://www.reproducibleresearchcambridge.co.uk/).
+
+  chapters:
+    - index.qmd
+
+    - part: "Prerequisites"
+      chapters:
+        - modules/00-prerequisites/index.qmd
+        - modules/00-prerequisites/podman-desktop.qmd
+
+    - part: "Module 1: Introduction to Containers"
+      chapters:
+        - modules/01-introduction/index.qmd
+        - modules/01-introduction/reproducibility.qmd
+        - modules/01-introduction/concepts.qmd
+        - modules/01-introduction/running-containers.qmd
+        - modules/01-introduction/running-containers-part-2.qmd
+
+    - part: "Module 2: Building and Publishing Containers"
+      chapters:
+        - modules/02-building-and-publishing/index.qmd
+        - modules/02-building-and-publishing/registry-login.qmd
+        - modules/02-building-and-publishing/building.qmd
+        - modules/02-building-and-publishing/publishing.qmd
+        - modules/02-building-and-publishing/reproducible-builds.qmd
+
+    - part: "Module 3: Automation and Best Practices"
+      chapters:
+        - modules/03-automation-and-best-practice/index.qmd
+        - modules/03-automation-and-best-practice/repository.qmd
+        - modules/03-automation-and-best-practice/workflows.qmd
+        - modules/03-automation-and-best-practice/testing.qmd
+        - modules/03-automation-and-best-practice/best-practices.qmd
+        - modules/03-automation-and-best-practice/related-technologies.qmd
+
+    - summary.qmd
+    - citation.qmd
+    #- references.qmd # references are included on per-page basis
+
+  page-navigation: true
+
+  search: true
+
+bibliography: references.bib
+
+execute:
+  freeze: auto
+
+contributors:
+  - name: "Piper Fowler-Wright"
+    orcid: "0000-0003-1060-445X"
+  - name: "Alexia Cardona"
+    orcid: "0000-0002-7877-5565"
+
+contributors-page: false
+
+format:
+  html:
+    theme: default
+    number-sections: false
+    css: styles.css
+    include-after-body: activity.js
+    filters:
+      - contributors.lua

@@ -1,0 +1,75 @@
+---
+title: "Course Introduction"
+description: "Containers for Reproducible Research"
+listing:
+  id: course-modules
+  contents: "modules/*/index.qmd"
+  sort: "title"
+  type: table
+  fields: [title, description]
+---
+
+## Course overview
+
+A major challenge in creating reproducible computational outputs is the wide range
+of systems research software may be expected to run on: hardware, operating
+system and installed libraries can all vary from one machine to the next.
+Containers address this problem by packaging an application together with
+everything it needs to run into a reusable *image* that can be deployed in
+a repeatable way across different systems.
+
+This course teaches you to run, build and share container images using Podman with
+Podman Desktop. By the end, you will be able to produce research software
+outputs that are reproducible and FAIR (findable, accessible, interoperable and
+reusable).
+
+## Learning outcomes
+
+By the end of this course, you will:
+
+- Understand how disparate computing environments can make research software hard to build and reproduce
+- Describe how containers provide a solution by running code and dependencies in a portable environment
+- Be able to find, run and build container images using Podman Desktop
+- Have published a container image for your own Python program to a public container registry
+- Know how building, testing and publishing containers may be automated in development workflows
+- Be ready to apply best practices for maintaining containers for research software 
+- Recognise related tools, such as Podman Compose, Apptainer and Kubernetes, and when to use them
+
+In order to follow the course, you will need to install Podman Desktop, as covered in [Module 0: Prerequisites](modules/00-prerequisites/index.qmd).
+
+## Beyond the scope of this course
+
+This course focuses on hands-on experience of running command-line and
+web-based applications in containers using the Podman Desktop GUI. The
+following topics are not covered in depth or at all:
+
+- Using Podman or Docker from the command line
+- Building and running containers with Apptainer
+- Running graphical applications that do not have a web interface
+- Multi-platform builds 
+- Multi-container applications (Docker/Podman compose)
+- GPU pass-through
+
+Links to further resources will be provided when relevant for these
+more advanced topics.  In particular, if you need to work on a HPC
+cluster,  you will probably use Apptainer rather than
+Podman. The [Apptainer User
+Guide](https://apptainer.org/docs/user/main/introduction.html)
+is a comprehensive reference.
+
+## Course structure
+
+::: {#course-modules}
+:::
+
+## Relation to other Reproducible Research Cambridge (RRCam) courses
+
+This course is the fourth in a series by the Reproducible Research Fellows Team:
+
+Python → Git and Command Line → Testing → **Containers** → Kubernetes
+
+As such, it may draw on some understanding from the previous courses, in
+particular of basic Python and Shell (Bash). Module 3 will also make use of
+GitHub Workflows, as introduced in the *Testing* course.  However, every case,
+full code snippets and explanations will be provided for those not familiar with
+these aspects.
