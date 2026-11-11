@@ -69,7 +69,7 @@ book:
 
   search: true
 
-bibliography: references.bib
+#bibliography: references.bib
 
 execute:
   freeze: auto
