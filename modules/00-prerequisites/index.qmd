@@ -1,0 +1,60 @@
+---
+title: "Module Overview"
+description: "What you need in order to follow this course"
+listing:
+  id: module-pages
+  contents: "*.qmd"
+  sort: "order"
+  type: table
+  fields: [title, description]
+---
+
+
+## Overview
+
+Building and running containers on your computer requires a program known as a
+container *runtime* to be installed. For this course, we use the runtime
+provided by Podman since it
+
+- is well supported across Windows, macOS and Linux
+- has a mature graphical user interface (GUI), Podman Desktop
+- is fully open source
+
+The most widely used container project is *Docker*, which also
+offers a graphical desktop application, Docker Desktop. However, unlike
+Podman Desktop, it is not open source, and requires a paid license for use in
+large commercial organisations. Importantly, container images built using Podman can be run using
+Docker, and vice versa, since both support the Open Container Initiative (OCI)
+standard.
+
+::: {.callout-tip collapse=true}
+## Secure by default
+
+Podman led the way in security, since it was designed from the outset
+to support rootless containers without requiring a privileged daemon, a process
+that runs continually in the background of your system as an administrator.
+Docker also now supports rootless containers, but this is harder to configure
+and not used as standard.
+:::
+
+## Learning objectives
+
+The purpose of this module is to install Podman Desktop only. If you already have
+a working version of Podman Desktop installed, you can skip to [Module 1:
+Introduction to Containers](../01-introduction/index.qmd).
+
+::: {.callout-warning collapse="true"}
+## Using Docker Desktop
+
+Docker Desktop supports most of the same operations as Podman Desktop, so it can
+be used to follow the course (note you'll have to translate the instructions for 
+the Podman GUI into Docker Desktop equivalents). One exception is building container
+images from a file, which Docker Desktop does not currently have an option for;
+you will need to run [docker build](https://docs.docker.com/get-started/docker-concepts/building-images/build-tag-and-publish-an-image/)
+from the command line.
+:::
+
+## Module structure
+
+::: {#module-pages}
+:::
