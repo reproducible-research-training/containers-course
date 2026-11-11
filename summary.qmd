@@ -1,0 +1,79 @@
+---
+title: "Course Summary"
+description: "Review key ideas of the course and links to further resources"
+order: 2
+---
+
+## Summary
+
+This course has provided an introduction to using software containers for
+reproducible research. We have learnt how Podman Desktop can be used to retrieve
+and run container images from container registries, as well as build and publish
+images from local Containerfiles.
+
+Several key ideas were:
+
+1. Containers provide reproducible computing environments for research
+   software: portable, repeatable and distributed without installation
+2. Podman works with container images built to the widely adopted Open
+   Container Initiative (OCI) specification, also used by Docker
+3. GitHub workflows allow container builds and publication to be automated
+   alongside software testing
+4. Container images should be well labelled, documented and rebuildable to 
+   make software FAIR
+
+If you have any comments, suggestions, fixes or other feedback on this course,
+please raise an issue on the GitHub repository. Good luck if
+you are continuing on to learn about Kubernetes!
+
+## Clean-up
+
+You will probably have several container images and containers left in Podman
+Desktop from this course. You are welcome to keep using them. Otherwise, we
+recommend removing them. A quick way to do this is:
+
+1. In the *Containers* pane, press *Prune*, which removes all stopped
+   containers.
+2. In the *Images* pane, press *Prune* again, which removes images that are not
+   used by a container.
+
+If you use Podman Desktop for other work, check what will be removed first. You
+can instead delete individual entries using the bin icon.
+
+## Further resources
+
+### Podman and related technology
+
+- [Podman Desktop docs](https://podman-desktop.io/docs): documentation
+  for everything in the application we have used, plus additional features
+- [dockerdocs guides](https://docs.docker.com/guides/): language-specific
+  containerisation and more advanced guides that can be followed using Podman
+- [Reproducible Computational Environments Using Containers](https://carpentries-incubator.github.io/docker-introduction/):
+  introductory course using Podman CLI for reproducible research from the
+  Carpentries community
+- [The Cloud Native SIG](https://cloudnative-sig.ac.uk/): community for
+  cloud-native technologies in digital research infrastructure 
+
+### Container registries
+
+- [Docker Hub](https://hub.docker.com/): the largest public registry, a good
+  place to find official base images
+- [GitHub Container Registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry)
+  (`ghcr.io`): the registry we used and recommended for images accompanying code
+  repositories
+- [Quay.io](https://quay.io/): a public registry run by Red Hat, the main
+  sponsor of Podman
+
+### Automation and standards
+
+- [Intermediate Research Software
+  Development](https://carpentries-incubator.github.io/python-intermediate-development/):
+  course including testing, Github development and collaborative work from the
+  Carpentries community
+- [GitHub workflow docs](https://docs.github.com/en/actions/concepts/workflows-and-actions/workflows):
+  how workflows are defined and triggered, for building on what we covered
+- [Open Container Initiative](https://opencontainers.org/): organisation from
+  The Linux Foundation responsible for container image and runtime standards
+- [Semantic Versioning 2.0.0](https://semver.org/): Recommended version number
+  specification for software
+
