@@ -1,0 +1,86 @@
+.callout[data-activity-number] .callout-icon-container {
+  display: none;
+}
+
+.callout[data-activity-number] .callout-header {
+  padding-top: 0.75rem;
+  padding-bottom: 0.5rem;
+}
+
+.callout[data-level] .callout-title-container::after {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--bs-secondary-color);
+  content: "Level: \25CF\25CF\25CB";
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1.25;
+  white-space: pre-line;
+}
+
+.callout[data-level] .callout-title-container {
+  position: relative;
+  line-height: 1.25;
+}
+
+.activity-level-info {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 1.1rem;
+  height: 1.1rem;
+  padding: 0;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--bs-secondary-color);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.activity-level-info:hover,
+.activity-level-info:focus-visible {
+  color: var(--bs-primary);
+}
+
+.activity-level-popup {
+  position: absolute;
+  right: 0;
+  bottom: 1.5rem;
+  z-index: 10;
+  width: min(20rem, calc(100vw - 3rem));
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.25rem;
+  background: var(--bs-body-bg);
+  box-shadow: 0 0.25rem 0.75rem rgb(0 0 0 / 15%);
+  color: var(--bs-body-color);
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.callout[data-level="beginner"] .callout-title-container::after {
+  content: "Level: \25CF\25CB\25CB";
+}
+
+.callout[data-level="intermediate"] .callout-title-container::after {
+  content: "Level: \25CF\25CF\25CB";
+}
+
+.callout[data-level="advanced"] .callout-title-container::after {
+  content: "Level: \25CF\25CF\25CF";
+}
+
+.callout-activity > .callout-body > p:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 480px) {
+  .callout[data-level] .callout-title-container::after {
+    font-size: 0.75rem;
+  }
+}

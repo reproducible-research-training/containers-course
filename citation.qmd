@@ -1,0 +1,6 @@
+## Citation {.unnumbered}
+
+This site was created using the UoC lesson template from [Reproducible Research Cambridge](https://www.reproducibleresearchcambridge.co.uk/)
+
+If you use or adapt the teaching materials presented within this book, please cite
+    CITATION_CFF

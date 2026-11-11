@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: "If you use or adapt the teaching materials presented within this book, please cite"
+repository-code: https://github.com/piperfw/container-demo
+title: "Containers for Reproducible Research"
+authors:
+  - given-names: Piper
+    family-names: Fowler-Wright
+    orcid: "https://orcid.org/0000-0003-1060-445X"
+
+  - given-names: Alexia
+    family-names: Cardona
+    orcid: "https://orcid.org/0000-0002-7877-5565"
+
+license: CC BY-SA 4.0
+date-released: 2026-11-11

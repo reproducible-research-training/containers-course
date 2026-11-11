@@ -1,0 +1,14 @@
+<footer class="lesson-footer" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; width: 100%; box-sizing: border-box; margin-top: auto; padding: 1rem 1rem 0.75rem; font-size: 0.7rem; line-height: 1.35; text-align: center;">
+  <img src="images/rrcam-logo.webp" alt="RRCam logo" style="width: 24px; height: auto;">
+  <span>This Lesson Template is developed as part of the RRCam initiative to enable reproducible research. </span>
+  <span>Learn more about RRCam Training courses <a href="https://www.reproducibleresearchcambridge.co.uk/">here.</a></span>
+</footer>
+<script>
+  const lessonFooter = document.querySelector('.lesson-footer');
+  const quartoSidebar = document.querySelector('#quarto-sidebar');
+  if (lessonFooter && quartoSidebar) {
+    quartoSidebar.style.display = 'flex';
+    quartoSidebar.style.flexDirection = 'column';
+    quartoSidebar.appendChild(lessonFooter);
+  }
+</script>
