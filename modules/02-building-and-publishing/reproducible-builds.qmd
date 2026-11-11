@@ -1,0 +1,294 @@
+---
+title: "Reproducible Builds"
+description: "How to choose base images, pin dependencies and add metadata"
+order: 4
+---
+
+## Overview
+
+Publishing an image is the biggest single step you can take towards
+reproducibility. It largely solves the problem of getting your software to run on
+other systems. Moreover, an image is a fixed snapshot, so anyone who pulls it
+obtains an identical copy of the software and, in most cases, consistent runtime
+behaviour.
+
+For a publication, a single, well-annotated image may be sufficient. We
+discuss how to record information about an image, in the form of *labels*,
+below. In most cases, however, you will want images that can be *rebuilt*,
+either to apply security patches to packages your application depends on, or to
+release a new version with more features or bug fixes. Providing a rebuildable
+image, i.e., a working `Containerfile`, also improves reusability, since it lets
+others build on or adapt your image.
+
+Care is needed when rebuilding, however, to prevent the software in an image
+changing in an uncontrolled way. In this lesson we cover how to make
+builds repeatable, so that containers provide a reproducible means for you to
+both consume and share software. 
+
+## Why builds change
+
+The instructions of a `Containerfile` are evaluated at build time. This means
+that the sources it draws on, such as the base image, packages or repositories,
+can change between builds. For example:
+
+- the base image referred to by a tag may be updated (rebuilt) by its owner
+- a Python package installed with `pip` will default to the latest available
+  version
+- the files in a git repository that is downloaded may have been updated or
+  replaced
+
+As a consequence, the same `Containerfile` built weeks or months apart will, in
+general, produce different images. In some cases, a source may disappear, resulting 
+in later builds failing entirely.
+
+The other side of the coin to the reliance on remote sources are the sources
+which you control. In order for others to rebuild your image, all
+material you use must be available to them, and your `Containerfile` publicly
+accessible. This normally means including the `Containfile` in a repository alongside the source
+code of your application. A repository containing *just* a `Containerfile` is
+also fine if your build is a curated assembly of external sources and packages,
+such as a particular Python environment used for a study in a paper.
+Use only publicly accessible packages and source
+URLs, and add any local files you `COPY` into the image to the same repository:
+an image that depends on a file stored only on your own computer cannot be
+rebuilt
+by others.
+
+## Pinning dependencies
+
+*Pinning* means specifying an exact version of a dependency, rather than
+using the default or latest version. It is recommended for the packages your
+application directly relies on.
+
+### Python packages
+
+In `requirements.txt`, a package is pinned using `==` followed by a version
+number. The script in `python-demo` from [Building Containers](building.qmd)
+printed the installed NumPy version in the container logs. At the time of
+writing this was `2.5.4`; if you ran the image you might go back
+and check the container logs to compare the version installed in your case.
+
+Assuming we were happy our application was
+stable and tested with `2.5.4`, we would edit the requirements file to:
+
+```bash
+numpy==2.5.4
+```
+
+Each time the image is rebuilt, the same NumPy version is then used, so we can be
+confident the Python script will behave in the same way. If we later wanted to
+increase the NumPy version, for example to take advantage of a new feature,
+it is advisable to publish the image with a new version tag (see below),
+so that people using the software know that the image content has changed. 
+You will have to practice pinning and tagging in the
+[exercise](#exercise-republishing-python-demo) at the end of this lesson.
+
+::: {.callout-tip collapse=true}
+## Pinning indirect dependencies
+
+Pinning dependencies does not pin their own dependencies. For complete
+control, tools that produce *lock files* can be used, such as `pip-tools`
+for Python packages. We do not cover them in this course.
+:::
+
+::: {.callout-note collapse=true}
+## Deterministic builds, not runs
+
+The techniques in this lesson make the built image repeatable, not the output
+of the software itself. The demo script in `python-demo` is non-deterministic,
+so it gives different estimates of π on every run. Can you see how to fix this?
+(The exercise below addresses this.)
+:::
+
+### System packages
+
+Pinning system packages, i.e., packages installed for the base operating system, 
+requires more care. Distributions such as Ubuntu and Debian do not keep outdated package
+versions in their main repositories, and a pinned version that has been removed
+will break your build.
+
+Updates to system packages are primarily security patches, which you want, with only  small
+risk of changing the behaviour of your application.
+In most cases, then, it is simpler not to pin them.
+This compromise is one reason it is important to test your image after
+rebuilding, as discussed in the next module. 
+
+
+### Downloaded software
+
+Other software components can be fixed in a similar way. For example, the Fiji
+ImageJ software provides a 'latest' download link of the form
+
+```dockerfile
+downloads.micron.ox.ac.uk/fiji_update/mirrors/fiji-latest/fiji-latest-linux64-jdk.zip
+```
+
+but also an archive of stable releases you can draw on:
+
+```dockerfile
+downloads.imagej.net/fiji/archive/stable/20250514-1821/fiji-stable-linux64-jdk.zip
+```
+Here, the date `2025-0514-1821` provides a fixed reference for the software
+version.
+
+### Base image
+
+The base image can be fixed too. A GPU application, for example, can use a
+specific NVIDIA image tag, such as `cuda:12.6.3-base-ubuntu24.04` that was
+used in [Running Containers II](../01-introduction/running-containers-part-2.qmd#gpu-access-optional)),
+the pin the version of the CUDA Toolkit.
+
+In fact, the base image is typically the single largest dependency
+of your application, so should be chosen carefully. Two general
+recommendations are:
+
+- Use a specific version tag, such as `python:3.13-slim`, rather than
+  `latest`. Check the images registry page to ensure the tag you chose is
+  sufficiently specific; `python:3.13` resolves to `python:3.13.x`, but
+  for our demo at least we do not worry about the patch number varying.
+- Prefer official or well-maintained images, from sources you can trust.
+  On Docker Hub, look for *Official Image* or *Verified Publisher* badges.
+  There is no official accreditation on GitHub's registry, but
+  download counts and repository stars provide a proxy for popularity. Check that
+  this popularity is consistent with what you would expect from that project.
+
+![The `3.13-slim` tag of the [Python official container image](https://hub.docker.com/_/python/) is equivalent to the more specific `3.13.18-slim-trixie` tag](assets/python313-slim-tags.png)
+
+Remember that even a specific version tag such as `python:3.13.18-slim-trixie`
+may change over time, e.g., due to an update to the underlying operating system.
+If you want to pin the base image precisely, you can use a *digest*, which is a
+hash, prefixed by `sha256:`, identifying the exact content of an image. On GitHub, it is shown
+on the details page of a package version, such as
+that for [the `python-demo` image](https://github.com/piperfw/podman-desktop-course/pkgs/container/python-demo/1400793660?tag=latest).
+
+A digest can be added to the `Containerfile` by appending it to the tag:
+
+```dockerfile
+FROM python:3.13-slim@sha256:...
+```
+
+Similar to pinning system packages, the trade-off is that you will not
+automatically receive fixes to the base image, and must manually
+update the digest when needed. 
+Hence, using a digest probably only necessary if you are preparing a reference for a
+publication, or need a build to be exactly repeatable, for example to debug it.
+
+## Curating tags and metadata
+
+We now discuss how to tag and label your own images, so that each published
+version can be identified.
+
+### Descriptive tags to semantic versioning
+
+Name-based tags like `:dev` or `:feature` are convenient while developing
+locally, but use version tags when publishing. A common scheme [1] is
+semantic versioning, `MAJOR.MINOR.PATCH`, starting from `0.0.1` for a development
+realse or `1.0.0` for a first public stable release. Increase the patch
+number for small fixes, the minor number for new features, and the major number
+for significant changes that may break compatibility. In any case,
+avoid relying on `:latest`
+when pulling an image, since it points at different images over time.
+
+::: {.callout-warning collapse=true}
+## One software per image
+
+Tags should be used to indicate different versions of an application. 
+If you decide to package a different application in a container
+you use, publish them as separate images.
+:::
+
+### Image metadata
+
+*Metadata* provides auxiliary information about an image, and can be recorded
+inside the image itself. This is achieved using the `LABEL` instruction in the
+`Containerfile`, which defines a key-value pair to be included with the image.
+
+The Open Container Initiative (OCI) defines standard label names [2].
+Here is a set for our demo image:
+
+```dockerfile
+LABEL org.opencontainers.image.title="python-demo"
+LABEL org.opencontainers.image.description="Demo Python app to estimate pi"
+LABEL org.opencontainers.image.version="0.0.1"
+LABEL org.opencontainers.image.authors="Your Name"
+LABEL org.opencontainers.image.source="https://github.com/username/python-demo"
+LABEL org.opencontainers.image.licenses="MIT"
+```
+
+The `licenses` label takes an [SPDX licence identifier](https://spdx.org/licenses/),
+such as `MIT`.
+
+These should be placed near the end of the `Containerfile`, so that changing them does not
+force the slow steps before them to run again. Registries and tools read these
+labels. GitHub, for example, uses the description label as the package
+description, and prompts you to add one if it is missing:
+
+![Version 0.0.1 of `python-demo` with description, linked repository and MIT license](assets/github-description-and-license.png)
+
+### Further considerations
+
+Some labels record the *provenance* of an image, meaning where it came from and
+how it was made: `source`, `version`, `revision` (the commit it was built from)
+and `created` (the build time) [2].
+These are easily left out of date when building and pushing manually. In the next module we look at 
+filling `version` and `revision`  automatically as part of a
+workflow. There we also cover other important aspects of releasing your software
+openly, such as including a licence and citation information with your
+repository.
+
+## Balancing reproducibility and maintainability
+
+Version pinning reveals there is a tension between reproducibility and maintainability. A fixed
+environment is reproducible, but cannot receive security patches and
+bug fixes. A reasonable approach is to pin selectively and upgrade deliberately: update on a schedule
+or when new security patches or bug fixes become available,  test the result
+and publish a new versioned image.
+
+For research software in particular, it is becoming more common practice to mint
+a versioned image when preparing a manuscript for publication.  That image is
+the binary record of your 'software experiment', and the version you cite. The
+software itself on the other hand can continue to be developed and updated.
+
+::: {.callout-note collapse=true}
+## Reproducible outcomes, not identical inputs
+
+An argument can be made that scientific reproducibility is about reproducible
+outcomes, which does not require bitwise reproducibility of software. The laws
+of Physics say that the motion of the planets is the same whether viewed from Paris or Rome,
+not that the motion of the planets is the same provided one uses the same
+telescope, lens manufacturer, etc.  An image lets anyone re-run your analysis
+reliably, which is valuable. Your conclusions however should not depend on that
+one environment. Useful science is robust.
+:::
+
+## Exercise: republishing `python-demo`
+
+In this exercise you will make the `python-demo` image from [Building
+Containers](building.qmd) more repeatable and identifiable, then republish it.
+
+1. Run the current `python-demo` image twice, and compare the estimates of π in the
+   logs. They will differ.
+2. Pin NumPy in `requirements.txt` to the version shown in the logs.
+3. Edit `script.py` so that the generator is seeded, e.g.,
+   `rng = np.random.default_rng(seed=1)`.
+4. Add `LABEL` instructions to your `Containerfile`, adapting the values above
+   to your own name and repository. Omit `source` if you have no repository.
+5. Rebuild the image, giving it the tag `0.0.1`, for example
+   `ghcr.io/username/python-demo:0.0.1`.
+6. Run the new image twice and compare the logs. The estimates should now be
+   identical.
+7. Push the new image, as in [Publishing Images](publishing.qmd).
+
+**Check your work.** On your GitHub package page, you should see the new `0.0.1`
+tag and the description from your label, with other labels included in the 
+image manifest GitHub renders. You can compare your `0.0.1` package
+to [this example](https://github.com/piperfw/podman-desktop-course/pkgs/container/python-demo/1400793660?tag=latest).
+Note that `latest` still appears as a separate package version from the 
+*earlier* image, which is one reason `latest` should not be relied on it.
+
+<!--Note repeatable numbers with a fixed seed to `np.random` is only guaranteed for a particular NumPy version, which is why we pinned it first.-->
+
+## References
+
+1. Tom Preston-Werner, Semantic Versioning 2.0.0, [semver.org](https://semver.org/)
+2. Open Containers Initiative (OCI), IMAGE-SPEC-ANNOTATIONS, [specs.opencontainers.org](https://specs.opencontainers.org/image-spec/annotations/)  (2025)
