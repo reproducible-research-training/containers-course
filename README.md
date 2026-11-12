@@ -1,5 +1,7 @@
 # Container for Reproducible Research 
 
+[reproducible-research-training.github.io/containers-course/](https://reproducible-research-training.github.io/containers-course/)
+
 A [Quarto](https://quarto.org) book based on the UoC lesson template from [Reproducible Research Cambridge](https://www.reproducibleresearchcambridge.co.uk/).
 
 

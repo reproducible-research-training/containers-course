@@ -1,0 +1,114 @@
+---
+title: "Container Concepts"
+description: "Understanding images, containers, layers, runtimes and registries"
+order: 2
+---
+
+## Small box, big ideas
+
+In the last section we stated that a container provides a reproducible
+computing environment for a software application. How exactly do they do that?
+
+It is helpful to start at the beginning of a container lifecycle.
+Suppose a developer wants to make their
+application available as a container, a role you will take on in
+[Module 2: Building Containers](../02-building-and-publishing/index.qmd). They write
+installation steps, such as 'download an external library' or 'compile
+application code', in a text file called a `Containerfile` (`Dockerfile` if
+you use Docker). A tool such as Podman reads these instructions and builds an
+*image*.
+
+You can think of an image as a read-only software disc. Internally, an image is
+made up of a stack of *layers* rather than a single file,
+but for our purposes it is enough to consider it to be an immutable, compact format.
+It holds an application's code as well as everything that application needs to run, because the
+dependencies were included during the build. This means it can be shared and
+run directly on different computers *without* any installation steps:
+a new user simply *pulls* (downloads) the image from a *registry*, which
+acts as an online software library for
+images, and a container *runtime* such as Podman runs it. Each running instance
+of an image is one *container*.
+
+The runtime reads the image and launches the application in a new environment,
+which is mostly isolated from the rest of your system. The container has its
+own filesystem, and by default its processes cannot see processes outside it.
+In practice, you often want to share things with the application, such as
+data files and network ports, or run extra commands inside it. The runtime
+provides the interface between the containerised application and your system.
+
+![Schematic for the lifecycle of containerised softare, from the left: a
+Containerfile defines an image that is published to an online registry (cloud).
+The image may be downloaded (disc) and used to run a sandboxed instance of 
+the application (box).](assets/container-schematic.png)
+
+## Containers and virtual machines
+
+For those of you who have some experience with research computing, containers
+may remind you of virtual machines. Both provide environment isolation but
+to different extents.  A virtual machine encapsulates an
+entire computer, including performing a full boot of an operating system. A container
+instead uses a kernel&mdash;the core system program that manages hardware and processes&mdash;provided
+by the host (e.g., your laptop), and isolates only an application's processes
+and filesystem. Containers are therefore a higher level of virtualisation.
+
+The main advantage of the level of virtualisation provided by containers is that they are more
+resource efficient than virtual machines. Since there is no operating system to
+boot, containerised applications start up almost immediately and add little
+overhead to running the application outside the container. A trade-off is
+weaker isolation, because the operating system's kernel is shared, which
+has implications for security. It also means differences in host kernels
+can potentially affect the reproducibility of the software (e.g., a kernel bug).
+
+This is why containers are sometimes called *sandboxes*: they are a separate,
+controlled space for an application to run, but the sandbox has weaker
+isolation than a complete virtual machine.
+
+::: {.callout-note collapse=true}
+## Linux containers on Windows and macOS
+
+On Linux, containers run using the host kernel, but this is not 
+true for Windows and macOS. On those systems, a Linux virtual machine is created
+by Podman (this is the *Podman machine* that was created during [installation](../00-prerequisites/index.qmd)),
+and all containers run inside this. So containers on Windows and macOS in fact
+involve both kinds of virtualisation!
+:::
+
+## Putting it all together
+
+A **container** is an isolated, running instance of an application together with
+its environment. The key terms are:
+
+- **Containerfile:** a text file of build instructions
+- **Image:** an immutable package, built from a Containerfile, containing the
+  application and its dependencies
+- **Registry:** an online store from which images are published and pulled
+- **Container runtime:** the software, such as Podman, that runs images as
+  containers
+
+A user needs only a container runtime in order to run an image in a container.
+Since runtimes such as Podman can be installed on every major operating
+system, this makes containerised software highly accessible. For this
+reason  containers have become a widely adopted mode of distributing software.
+Barriers around installation are removed, and the repeatable, sandboxed environment
+of a container, in which the versions of the application and its dependencies are
+fixed, supports reproducibility.
+
+::: {.callout-tip}
+## Check your understanding
+
+1. If you run the same container image twice, how many containers are created?
+2. Explain how a virtual machine differs from a container.
+3. What is a container registry?
+
+:::
+
+::: {.callout-note collapse=true}
+## Answers
+
+1. Two&mdash;each container is a separate running instance of the image.
+2. A virtual machine boots its own operating system, whereas a container
+   isolates only an application's processes and filesystem. Containers on the
+   same host share a kernel.
+3. A registry is an online service for storing and distributing container
+   images.
+:::

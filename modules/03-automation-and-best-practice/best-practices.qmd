@@ -1,0 +1,354 @@
+---
+title: "Best Practices"
+description: "Guidance to produce FAIR, secure and maintainable software"
+order: 4
+---
+
+## Overview
+
+We have seen in this course how container images provide a way to make your
+software reproducible. How can you  ensure it is also FAIR (Findable,
+Accessible, Interoperable and Reusable), secure and maintainable?
+In this lesson we discuss some good practices for developing containerised
+research software. 
+
+<!-- A checklist is included at the end which can be used to evaluate your own project.-->
+
+
+## Metadata and provenance
+
+A large portion of FAIR concerns having high-quality metadata, which is information that
+describes your software and its associations. For container images, this
+means clear tags, plus labels recording details such as authorship and licence.
+
+::: {.callout-tip collapse=true}
+## Findable first
+
+Publishing an image on a public, searchable registry such as `ghcr.io`
+is the most important step towards findability. You should also link the image
+(a 'package' on GitHub) to the public repository containing its source code.
+This happens automatically if the image is built and published by a workflow in that repository, as we saw
+earlier in this module ([GitHub Workflows](workflows.qmd)), but can also be done 
+manually if pushing directly from Podman Desktop (see
+[Module 2](../02-building-and-publishing/publishing.qmd)).
+:::
+
+### Tags and labels
+
+So far, our `podman.yml` workflow creates an image with a `latest` tag. This
+indicates the most recent build  but conveys no version information.
+ We can improve this by passing the version in as a parameter when running the
+ workflow.
+
+First, add an *input* under `workflow_dispatch` in the workflow:
+
+```yaml
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Semantic version for the image tag (e.g. 0.0.1)
+        type: string
+        required: true
+```
+
+This can then be used in a build step such as:
+
+```yaml
+      - name: Build image
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          podman build \
+            --build-arg VERSION="$VERSION" \
+            --build-arg REVISION="$GITHUB_SHA" \
+            -t python-demo:"$VERSION" \
+            -t python-demo:sha-"${GITHUB_SHA::7}" \
+            -t python-demo:latest .
+```
+Here we add the version as a tag, but also a tag with the Git commit hash (SHA) via the
+`GITHUB_SHA` variable, which
+identifies the exact state of the repository when the workflow is run.
+As a reminder, multiple tags can refer to the same version of an image.
+
+Second, the `--build-arg` options make the
+variables available inside the
+`Containerfile`, where they can be used to set labels
+automatically:
+
+```dockerfile
+ARG VERSION
+ARG REVISION
+LABEL org.opencontainers.image.version="${VERSION}"
+LABEL org.opencontainers.image.revision="${REVISION}"
+```
+You can update the `version` label and add the `revision` label to your `Containerfile`
+now and rebuild using the 'Build Container Image' workflow. Note to resolve correctly the `ARG` lines must exist and must come after the `FROM`
+instruction that pulls in the base image.
+
+Each image will now have three tags: with different jobs:
+
+| Tag | Meaning |
+|---|---|
+| `0.0.1` | A named release |
+| `sha-1a2b3c4` | The exact commit it was built from |
+| `latest` | The newest build (unreliable) |
+
+::: {.callout-tip collapse=true}
+## GitHub Releases
+Releases are a GitHub-native way of identifying software versions on GitHub,
+appearing under a separate *Releases* tab of a repository. While beyond the
+scope of this course, release tags can also be used inside workflows to label
+container images. Refer to GitHub's [About
+releases](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases)
+documentation if you want to use this feature.
+:::
+
+### Licence and citation
+You will have noticed that GitHub offers to add a licence file, `LICENSE`, when
+you create a repository. This is good practice, as it informs others how they may
+use and reproduce your software. Choose a permissive licence if possible: MIT
+and Apache 2.0 are amongst the most popular. If you want modified versions to stay open
+under the same terms, known as  'copyleft' policy, consider GNU GPLv3. GitHub's
+[choosealicense.com](https://choosealicense.com/licenses/) has additional
+details and licence text you can copy. Note when adding a `LICENSE` file to your
+repository, set the `org.opencontainers.image.licenses` label in your `Containerfile` to
+match.
+
+Be aware that your dependencies have their own licences which, for example,
+may require you to state any modifications you have made, or release your software
+under the same licence. There may also be restrictions for commercial or
+large organisational use; make sure to highlight any in your `README.md`.
+
+In addition to licensing, you will probably want to make your software citable. There
+are three common ways, which can be combined:
+
+* Add a `CITATION.cff` file to your repository. GitHub will then show a "Cite
+  this repository" button (see
+  [About CITATION files](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-citation-files)).
+* Include a BibTeX entry in a 'How to cite' section of
+  the `README.md`, which can be directly copied to a citation manager or LaTeX
+  document
+* Archive a release of your repository on a service such as Zenodo. This gives
+  a permanent DOI to reference in a paper or other work.
+
+## Documentation
+
+Helpful documentation is essential for the accessibility of software.
+It can also improve findability given it is likely to be returned
+by search engines and AI agents looking for software online. 
+
+### Supporting documentation
+
+As a minimum, your repository should include a `README.md` alongside the `Containerfile`.
+This should give  a brief description of the software and usage
+instructions, such as required parameters and available command line
+arguments. If you provide examples, include a specific version tag
+rather than `latest`, in case the usage behaviour changes over time.
+
+::: {.callout-tip collapse=true}
+## Self-documenting software
+
+When developing software, consider adding a `--help` option so users can discover
+how to use it without leaving the terminal. For Python, the `argparse`
+and `click` modules can be used to generate help text automatically from argument
+definitions.
+:::
+
+
+### Guidance for contributors
+
+If you would like others to contribute to the development or maintenance 
+of your software, a `CONTRIBUTING.md` file will
+be scanned by GitHub to create a 'Contributing' tab,
+allowing you to explain, how to report a problem, propose a change
+or request a new feature.
+
+See GitHub's information on
+[setting guidelines for repository contributors](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/setting-guidelines-for-repository-contributors).
+
+### User manual
+
+Online documentation can greatly increase the reach and usability of your
+software. It is most useful for software beyond basic scripts, where
+explanations of usage and features cannot sensibly fit into a single
+`README.md`.
+
+GitHub Pages offers free hosting for
+documentation attached to a repository. Tools such as
+[Zensical](https://zensical.org/) and [Quarto](https://quarto.org/) 
+turn a set of Markdown files into a website, and can be run
+in a GitHub workflow to publish it automatically. Both can also be run from a
+container, so you can build and preview your documentation without installing
+anything, using the skills from this course. Quarto was used to write these
+notes!
+
+<!-- Another popular option is [Read the Docs](https://about.readthedocs.com/), which hosts documentation built from your repository.-->
+
+## Interoperability and reusable design
+
+*Interoperable* software can be used with other software tools and systems,
+whilst *reusable* software can be rebuilt and extended by others. 
+Podman builds images to the Open Container Initiative (OCI) standard, which
+other runtimes such as Docker and Apptainer can read. You get this broad
+compatibility, and support across all major operating systems and platforms,
+simply by using containers to distribute your software. There are aspects,
+however, that you control with the design of your software that determine
+how readily others can integrate your software and rebuild it for their own purpose. 
+
+### Input: arguments and data
+
+Most computational work in science comes down to parsing input to a program and
+collecting the outputs. 
+
+In Podman Desktop, input parameters and options can be passed by
+by setting the *Command* when creating a container. For example, if we adapted
+our `python-demo` script to accept a `samples` parameter for the number of
+samples in the simulations, a valid *Command* could be
+```bash
+python script.py --samples 9999
+```
+
+If your image does have an entrypoint script, as we introduced in
+[Testing Containers](testing.qmd), document its behaviour in the `README.md`.
+The simplest approach is to end the script with:
+
+```bash
+exec "$@"
+```
+
+As explained in that lesson, `"$@"` stands for all arguments passed 
+to the entrypoint, which is the contents of *Command*. 
+Ending with this line ensures that, once any preparation has
+been performed, the desired container command is executed, including any
+arguments provided by the user.
+
+The other critical input is data. Aside from small test or sample datasets,
+raw data should not be included in the image. Instead, they should be provided at runtime through a bind mount,
+set in the *Volumes* section of Podman Desktop when creating a container.
+Choose a clear location where your application expects data, e.g., `/data`, and document it.
+A common choice is to set `WORKDIR` (see [Module 2](../02-building-and-publishing/index.qmd)) to that
+location at the end of the `Containerfile`:
+
+```dockerfile
+WORKDIR /data
+```
+
+Your script then runs there, reads any data the user has mounted to that path,
+and writes new or modified data back to it.
+
+### Output formats
+
+The `python-demo` application only prints a result. This is fragile and not
+machine readable. A better option would be to 
+create structured output, such as with JSON:
+```python
+import json
+print(json.dumps({"pi_estimate": estimate, "samples": samples}))
+```
+You could also give users the option to have the script write this to a file
+directly.
+
+In addition, it is also a good idea to make use of exit codes. In Python,
+the simplest approach is `sys.exit(1)` for a failure and 
+`sys.exit(0)` for a successful run. This allows your script to be used in
+pipelines where other programs or operations run conditionally on its
+success. 
+
+### Easy rebuilds
+
+In [Module 2/Reproducible Builds](../02-building-and-publishing/reproducible-builds.qmd) we advised caution in applying
+version pins to system packages and libraries your software depends on. 
+Strict pins can make a rebuild fail and block new features being available. 
+They also stop your
+image receiving security patches for its dependencies.
+
+There are further ways to may your software easier to rebuild and work
+with:
+
+- Use `ARG` to parameterise build variants, for example the version of a
+  dependency that may affect reproducibility or compatibility
+- Follow good programming conventions for your language, such as Python's PEP 8
+- Consider how it may be deployed when writing the `Containerfile`. Will people
+  want to run it as a persistent background service, or access a web interface
+  in a browser?
+
+Together with contributing guidelines and an open licence, these make it more
+likely that others will extend your software. Like good science, good software
+should encourage others to develop it further.
+
+::: {.callout-tip collapse=true}
+## Image layers
+
+For larger applications, how you order the steps in your `Containerfile` affects
+build speed, and you can organise the installation into different stages that
+can be selectively used by other images. Generally, you want to put components
+that you will change often, such as your application code, near the end of the build;
+see
+Docker's guide to
+[understanding image layers](https://docs.docker.com/get-started/docker-concepts/building-images/understanding-image-layers/).
+:::
+
+## Maintenance and security
+
+Reproducibility and maintainability sometimes feel opposed: strict
+reproducibility requires pinning versions of all dependencies, but doing so
+can make it very difficult to rebuild or resolve bugs in your software.
+As explained aboe, we advise avoiding
+pins in your `Containerfile` for system packages and libraries, and only
+using them for dependencies your application directly depends on, e.g.,
+Python packages. This keeps your software rebuildable and up to date, while
+older images can be accessed by tag if a particular revision is required for
+reproducibility.
+
+The workflows covered in this module make it easy to rebuild often. Doing so
+allows you to catch problems in the build process before they accumulate. Likewise,
+automated tests helps ensure the software itself continues to function correctly.
+
+### Setting user
+By default, processes inside a container run as the root user (UID=0)
+which, in many Docker and some Podman installations, maps to root *outside* the
+container. This is a security risk because, although containers should keep
+container processes isolated, *if* a bug allows processes to escape, those
+processes will have administrative privileges on your computer. Is it therefore
+good practice to specify processes to run as a non-privileged user 
+in your `Containerfile`. This is achieved with the
+`USER` instruction. For example,
+```dockerfile
+USER 1001:1001
+```
+sets the UID and GID (user and group-id) to 1001, which should not have any
+special capabilities.
+
+<!--
+::: {.callout-note collapse=true}
+## Trigger points
+
+Whilst we used a manual `workflow_dispatch` to run the `podman.yml` workflow,
+for an actively developed project you can set `on: push`, optionally restricted
+with `branches [main]`,
+to have the workflow run whenever a commit is pushed to the main branch, for
+example. 
+:::
+-->
+
+::: {.callout-tip collapse=true}
+## Test your understanding
+
+Try these questions before opening the answers.
+
+1. Your workflow builds only a `latest` tag. Why is this a problem for someone trying to reproduce your results?
+2. What are common ways to make it easier for people to cite your software?
+3. What is the container specification used by Docker and Podman?
+4. How should data be passed to a running container?
+:::
+
+::: {.callout-note collapse=true}
+## Answers
+
+1. `latest` changes with each build and does not indicate which version produced a result
+2. Add a `CITATION.cff` file or include citation information in the `README.md`
+3. The Open Container Initiative (OCI) standard
+4. Via a bind mount, set under *Volumes* in Podman Desktop, to a location inside the container filesystem that your `README.md` documents
+:::
+

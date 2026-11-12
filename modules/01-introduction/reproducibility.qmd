@@ -1,0 +1,170 @@
+---
+title: "Reproducible Computing"
+description: "How the challenge of reproducing computational environments motivates software containerisation"
+order: 1
+---
+
+## Reproducibility matters
+
+Reproducibility is a basic tenet of science. In order to establish scientific knowledge,
+one has to be able to obtain the same results when repeating an experiment or observational
+study under a defined set of conditions. Modern science is increasingly
+computational, where reproducibility implies the same inputs 
+for an analysis or routine yield the same outputs. The routines are computer
+programs that form software running on your machine.
+
+::: {.callout-note collapse=true}
+## Non-deterministic outputs
+
+When considering probabilistic outcomes, you are really looking for the same
+*distribution* of outputs over many runs.
+:::
+
+A necessary condition for being able to repeat a computational analysis is being
+able to run the software providing it.  Hence computational reproducibility
+tends to have two steps: (i), can the software run on accessible computing
+hardware, and (ii), given (i), does the analysis have reproducible results,
+e.g., matching over successive runs or an established reference value?  For the
+most part, we will be concerned with (i), i.e., the problem of being able to
+reliably run software on different computers, which is not at all trivial. It
+has implications not only for reproducibility but also the accessibility and
+usability of software. The second (ii) often follows from the deterministic
+nature of an ideal  (bug-free) computer program, but becomes critical to inspect
+in certain cases, e.g., performance benchmarking. 
+
+### Barriers to computing
+Installing research software can be troublesome, especially when there is little
+developer support or documentation. This can be enough to prevent
+one research group from using software from, and so reproducing the results
+of, another research group. It can also be a barrier for novices looking to
+learn and apply domain-specific tools.
+Even experienced users can lose
+considerable time to troubleshooting when installing software on a new
+device or performing an update.
+
+At many institutions, compute and software are managed by a dedicated
+infrastructure or Research Software Engineering (RSE) team. For these teams,
+being able to repeatedly deploy software quickly and consistently across many systems
+is essential for providing software access for researchers. In many cases,
+it is the only way researchers are able to perform their research, since 
+the computational demands of scientific routines may be well beyond the
+capabilities of personal computing devices or require specialist hardware.
+
+Containers address these problems by running software in a portable and *contained*
+environment that is agnostic to many of the details of the system it is running
+on.
+
+## Diverse computing environments
+
+In the broadest sense, a computing environment is everything a software program interacts with:
+the hardware, the operating system, installed software and all related
+configuration. In the context of software development, *environment* is typically used to refer
+to the software portion comprising other system packages and
+installed software the program may communicate with.
+
+Computing environments used for research are incredibly diverse. Some
+researchers will run applications on their personal laptops whilst others will have
+dedicated workstations with GPUs provided by their institution. Yet others will
+connect to a remote high-performance computing (HPC) cluster to perform
+analysis. How can a developer prepare their software to function correctly on
+such a wide range of endpoints?
+
+In order for a computer program to run it must interact with:
+
+- Hardware devices, e.g., CPUs and GPUs, facilitated by firmware 
+- The operating system, which provides *drivers* to interface between the hardware and software
+- Existing software and libraries on the system it requires, known as
+  *dependencies*
+
+Incompatibilities can occur at any level. For example, a program may need a
+newer version of a library than the one installed, or not support a particular operating
+system altogether. Containers address the software levels, but they still share
+the host's hardware and operating system kernel, a point we return to in
+[Container Concepts](concepts.qmd).
+
+::: {.callout-note collapse=true}
+## Programs, packages, libraries, executables, dependencies...
+
+These terms are often used loosely, and overlap. In this course:
+
+- A **program** is a set of instructions a computer can execute
+- An **executable** is a file the operating system can run directly, typically a
+  program
+- A **library** is reusable code that other programs call (for example, NumPy in Python)
+- A **package** is a way of distributing code defining a library or program
+- A **dependency** is anything a program needs in order to run, including
+  libraries and other programs
+:::
+
+## Containers as a reproducibility tool
+
+A container includes an application together with all its dependencies as a
+single unit called an *image* that runs in a sandboxed environment.  Anyone with
+a piece of software called a container runtime can create a new instance of the
+application and its environment from the image without having to manage 
+dependencies separately.
+
+The process of installing becomes a matter of downloading the image, which
+addresses the first component (i) of reproducibility described above. The image is
+immutable which supports the second component (ii), since the versions of the
+application and all its dependencies are fixed and the same between all
+instances. In other words, rather than trying to recreate the same environment
+for the software on a new machine, you just share the environment directly.
+
+For infrastructure teams, the same image can be deployed on a laptop, a workstation
+or a shared server, which makes software easier to provide to many users.
+
+::: {.callout-warning collapse=true}
+## On exact reproducibility
+
+Using containers removes major sources of variations in the environment,
+but do not guarantee reproducible outputs. For example, the host kernel
+and the container runtime itself may have differences between instances.
+:::
+
+## Facilitating FAIR research software
+
+The FAIR principles (findable, accessible, interoperable and reusable) were
+first introduced for scientific data [1], and have since been adapted for research
+software [2]:
+
+- **F:**  Software, and associated metadata, is easy for both humans and machines to find
+- **A:** Software and its metadata are retrievable via standard protocols
+- **I:** Software interoperates with other software by exchanging data or
+  metadata through standardised interfaces (APIs)
+- **R:** Software is both usable and reusable (can be modified or incorporated in
+  other software)
+
+Throughout this course we will develop best practices around containers in order to 
+achieve FAIR software outputs. 
+
+::: {.callout-tip}
+## Check your understanding
+
+1. How does running a container compare with traditional software installation?
+2. Explain what a computing environment is.
+3. (Harder) Give one reason a container might produce different outputs on two machines.
+:::
+
+::: {.callout-note collapse=true}
+## Answers
+1. Running containerised software requires only a container runtime such as
+   Podman and a downloaded container image. A traditional installation first
+   requires you to check that all dependencies are present on your system, then
+   to follow the software's installation process. This can vary between operating
+   systems, and may involve downloading and extracting archived files, changing
+   environment variables and running third-party (possibly untrusted)
+   installers.
+2.  The sum of hardware and software&mdash;and their configuration&mdash;a particular program
+    or user interacts with.
+3. For example, differences in the host kernel or the container runtime itself.
+:::
+
+
+## References
+
+1. Wilkinson, M. D. et al. The FAIR Guiding Principles for scientific data
+   management and stewardship. [*Scientific Data* 3, 160018 (2016)](https://doi.org/10.1038/sdata.2016.18).
+2. Barker, M. et al. Introducing the FAIR
+   Principles for research software. [*Scientific Data* 9, 622 (2022)](https://doi.org/10.1038/s41597-022-01710-x>).
+

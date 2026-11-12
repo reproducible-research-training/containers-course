@@ -1,0 +1,69 @@
+---
+title: "Registry Authentication"
+description: "Configure Podman Desktop with credentials for GitHub Container Registry"
+order: 1
+---
+
+
+
+## Creating an access token
+
+For Podman Desktop to push images to the GitHub Container Registry (GHCR) on
+your behalf, or pull private images that your account has access to, you need
+to create a *personal access token* for your GitHub account. A token works like
+a password that is limited to specific actions.
+
+
+::: {.callout-note collapse=true}
+## Alternative Registries
+
+If for some reason you do not want to use the GitHub Container Registry,
+everything in this module can be done with a Docker account (for `dockerhub.io`)
+or a Red Hat account (for `quay.io`). You will need to create a [personal access
+token for
+Docker](https://docs.docker.com/security/access-tokens/personal-access-tokens/)
+or a [robot account for
+quay.io](https://docs.quay.io/glossary/robot-accounts.html),
+and enter those credentials to Podman Desktop in *Settings > Registries*.
+:::
+
+This is most easily done by going to
+[github.com/settings/tokens/new?scopes=write:packages](https://github.com/settings/tokens/new?scopes=write:packages)
+in your browser. You will have to log in to GitHub if you aren't already.
+This takes you to the Developer Settings page to create a new 'classic' token
+with permission to read and write packages. Enter a name to identify the token,
+e.g., 'Push to GHCR', and choose an expiry date or disable it entirely; 
+the most important aspect for security is that you do *not* tick additional
+scopes that would grant the ability to modify your repositories.
+Scroll down and press
+*Generate token*.
+
+![Generating a token with read and write access to
+ghcr.io. Do not check any other boxes.](assets/github-create-token.png)
+
+The new token will then be displayed. Make sure to save it somewhere secure,
+such as a password manager, as it will only be shown once. Treat it like a
+password, and never share it or add it to a public space like a code repository.
+
+## Adding the token to Podman Desktop
+
+Back in Podman Desktop, go to *Settings > Registries* and press *Configure* next
+to GitHub in the registry list. Enter your GitHub username as the *Username*,
+and the access token you created above as the *Password*. Do *not* enter your
+GitHub account password here.
+
+![Configuring Podman Desktop to authenticate with ghcr.io using your personal
+access token](assets/podman-configure-github.png)
+
+You should be all set for the rest of the Module.
+
+::: {.callout-note collapse=true}
+## Authentication not working?
+
+Check that:
+
+- the password you entered is the full token, including its `ghp_` prefix
+- the token has not expired
+- the token, as shown in your GitHub Developer Settings, has read and write
+  access to packages
+:::

@@ -1,0 +1,41 @@
+---
+title: "Module Overview"
+description: "Automate building, testing and publishing with GitHub Actions, and apply good practice for FAIR research software"
+listing:
+  id: module-pages
+  contents: "*.qmd"
+  sort: "order"
+  type: table
+  fields: [title, description]
+---
+
+## Overview
+
+Continuous integration and delivery (CI/CD) describes an approach to software
+development involving short, iterative cycles with automated testing and
+release. This module shows how building and publishing container images can be
+automated with GitHub workflows for software releases that are reliable,
+reusable and identifiable.
+
+We discuss container-specific aspects of testing, which complement the unit and
+integration tests of software covered in the Testing course earlier in this
+series. The module ends with best practices for containerising research
+software, and a brief survey of related container technologies you are likely to encounter in research.
+
+## Learning objectives
+
+By the end of this module, you will:
+
+- Have created a GitHub workflow that builds and publishes a container image
+  automatically
+- Understand how testing may fit in before and after an image is built
+- Be able to set image metadata and package versions dynamically using build
+  argument
+- Know best practices for developing and sharing research software with
+  containers
+- Recognise the use case for related tools: Podman Compose, Apptainer and Kubernetes
+
+## In this module
+
+::: {#module-pages}
+:::

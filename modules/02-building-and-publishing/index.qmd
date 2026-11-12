@@ -1,0 +1,35 @@
+---
+title: "Module Overview"
+description: "Build reproducible container images and publish them to a registry"
+listing:
+  id: module-pages
+  contents: "*.qmd"
+  sort: "order"
+  type: table
+  fields: [title, description]
+---
+
+## Overview
+
+In [Module 1](../01-introduction/index.qmd) we got up and running with container
+images from public registries such as Docker Hub, GitHub and Quay.io. What if,
+however, no public image exists for the software you want to run, or you want to
+create a container image for your own software? This module walks through
+building and publishing container images using Podman Desktop. Particular
+attention is given to creating images that support reproducible outcomes.
+
+## Learning objectives
+
+By the end of this module, you will:
+
+- Know how to authenticate with the GitHub Container Registry
+- Understand how a `Containerfile` defines the instructions used to build a
+  container image, and know its key instructions
+- Be able to write your own containerfiles for simple programs
+- Have built and published a container image for a Python program using Podman
+- Be able to apply strategies for reproducible and labelled container images
+
+## In this module
+
+::: {#module-pages}
+:::
